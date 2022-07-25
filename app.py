@@ -189,6 +189,7 @@ def main_menu():
 
 def main_menu2():
 
+
     font = ("Arial", 14)
 
     layout = [[sg.Text('Main Menu')],
@@ -227,11 +228,13 @@ def draw_window2(win, bird, pipes, base, score):
 
 def main2(play):
 
+    count = 0
+
     while play == "Play Yourself":
 
         bird = Bird(230, 350)
         base = Base(730)
-        pipes = [Pipe(700)]
+        pipes = []
         run = True
         win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
         clock = pygame.time.Clock()
@@ -243,32 +246,38 @@ def main2(play):
                 if event.type == pygame.QUIT:
                     run = False
                 if pygame.mouse.get_pressed()[0]:
+                    if count == 0:
+                        count = 2
                     bird.jump()
 
-            bird.move()
-            add_pipe = False
-            rem = []
-            for pipe in pipes:
-                if pipe.collide(bird):
-                    run = False
-                
-                if pipe.x + pipe.PIPE_TOP.get_width() < 0:
-                    rem.append(pipe)
+            if count > 0:
+                bird.move()
+                if count == 2:
+                    pipes.append(Pipe(700))
+                    count = 3
+                add_pipe = False
+                rem = []
+                for pipe in pipes:
+                    if pipe.collide(bird):
+                        run = False
                     
-                if not pipe.passed and pipe.x < bird.x:
-                    pipe.passed = True
-                    add_pipe = True
-                pipe.move()
+                    if pipe.x + pipe.PIPE_TOP.get_width() < 0:
+                        rem.append(pipe)
+                        
+                    if not pipe.passed and pipe.x < bird.x:
+                        pipe.passed = True
+                        add_pipe = True
+                    pipe.move()
 
-            if add_pipe:
-                score += 1
-                pipes.append(Pipe(550))
+                if add_pipe:
+                    score += 1
+                    pipes.append(Pipe(550))
 
-            for r in rem:
-                pipes.remove(r)
+                for r in rem:
+                    pipes.remove(r)
 
-            if bird.y + bird.img.get_height() >= 730 or bird.y < 0:
-                run = False
+                if bird.y + bird.img.get_height() >= 730 or bird.y < 0:
+                    run = False
 
             base.move()
             draw_window2(win, bird, pipes, base, score)
